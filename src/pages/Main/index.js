@@ -1,12 +1,10 @@
-/* eslint-disable no-throw-literal */
-/* eslint-disable react/state-in-constructor */
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
 import api from '../../services/api';
 
-import Container from '../../components/container';
+import Container from '../../components/Container';
 
 import { Form, SubmitButton, List } from './styles';
 
@@ -48,11 +46,11 @@ export default class Main extends Component {
     try {
       const { newRepo, repositories } = this.state;
 
-      if (newRepo === '') throw new Error('Por favor, informe um repositório!');
+      if (newRepo === '') throw new Error('Por favor, insira um repositório!');
 
-      const hasRepo = repositories.find(r => r.name === newRepo);
+      const repoExists = repositories.find(r => r.name === newRepo);
 
-      if (hasRepo) throw new Error('Repositório duplicado');
+      if (repoExists) throw new Error('Repositório já existe na lista!');
 
       const response = await api.get(`/repos/${newRepo}`);
 
@@ -65,7 +63,19 @@ export default class Main extends Component {
         newRepo: ''
       });
     } catch (error) {
-      this.setState({ error: true });
+      if (error.response && error.response.status === 404) {
+        this.setState({
+          error: 'Repositório inexistente!',
+          newRepo: ''
+        });
+
+        return;
+      }
+
+      this.setState({
+        error: error.message,
+        newRepo: ''
+      });
     } finally {
       this.setState({ loading: false });
     }
@@ -84,8 +94,8 @@ export default class Main extends Component {
         <Form onSubmit={this.handleSubmit} error={error}>
           <input
             type="text"
-            placeholder="Adicionar repositório"
-            vale={newRepo}
+            placeholder={error || 'Adicionar repositório'}
+            value={newRepo}
             onChange={this.handleInputChange}
           />
 

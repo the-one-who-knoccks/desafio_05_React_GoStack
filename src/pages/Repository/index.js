@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import api from '../../services/api';
 
-import Container from '../../components/container';
+import Container from '../../components/Container';
 
 import { Loading, Owner, IssueList, IssueFilter, PageActions } from './styles';
 
